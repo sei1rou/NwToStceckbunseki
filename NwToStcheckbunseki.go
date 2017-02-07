@@ -220,6 +220,33 @@ func main() {
 		hiGokei[3] = strconv.Itoa(gokeiHi)
 		out_record = append(out_record, hiGokei...)
 
+		//集団分析項目の文字列を数字に変換
+		Ab := make([]int, 6)
+		Cb := make([]int, 6)
+
+		Ab[0] = setAbvalue(record[21])
+		Ab[1] = setAbvalue(record[22])
+		Ab[2] = setAbvalue(record[23])
+		Ab[3] = setAbvalue(record[28])
+		Ab[4] = setAbvalue(record[29])
+		Ab[5] = setAbvalue(record[30])
+		Cb[0] = setCbvalue(record[67])
+		Cb[1] = setCbvalue(record[68])
+		Cb[2] = setCbvalue(record[70])
+		Cb[3] = setCbvalue(record[71])
+		Cb[4] = setCbvalue(record[73])
+		Cb[5] = setCbvalue(record[74])
+		out_record = append(out_record,intToString(Ab)...)
+		out_record = append(out_record,intToString(Cb)...)
+
+		//集団分析　得点計算
+		Sb := make([]int, 4)
+		Sb[0] = Ab[0] + Ab[1] + Ab[2]
+		Sb[1] = Ab[3] + Ab[4] + Ab[5]
+		Sb[2] = Cb[0] + Cb[2] + Cb[4]
+		Sb[3] = Cb[1] + Cb[3] + Cb[5]
+		out_record = append(out_record, intToString(Sb)...)
+
 		writer.Write(out_record)
 
 	}
@@ -334,6 +361,23 @@ func addRecordHead(S *[]string) {
 	*S = append(*S, "仕事のストレス要因(合計)")
 	*S = append(*S, "周囲のサポート(合計)")
 	*S = append(*S, "高ストレス(合計)")
+	*S = append(*S, "A1b")
+	*S = append(*S, "A2b")
+	*S = append(*S, "A3b")
+	*S = append(*S, "A8b")
+	*S = append(*S, "A9b")
+	*S = append(*S, "A10b")
+	*S = append(*S, "C1b")
+	*S = append(*S, "C2b")
+	*S = append(*S, "C4b")
+	*S = append(*S, "C5b")
+	*S = append(*S, "C7b")
+	*S = append(*S, "C8b")
+	*S = append(*S, "仕事の量的負担")
+	*S = append(*S, "仕事のコントロール")
+	*S = append(*S, "上司の支援")
+	*S = append(*S, "同僚の支援")
+
 
 }
 
@@ -1133,4 +1177,40 @@ func intToString(i []int) []string {
 	}
 	return s
 }
+func setAbvalue(S string) int {
+	var R int
+
+	switch S {
+	case "そうだ":
+		R = 4
+	case "まあそうだ":
+		R = 3
+	case "ややちがう":
+		R = 2
+	case "ちがう":
+		R = 1
+	default:
+		R = 0
+	}
+	return R
+}
+
+func setCbvalue(S string) int {
+	var R int
+
+	switch S {
+	case "非常に":
+		R = 4
+	case "かなり":
+		R = 3
+	case "多少":
+		R = 2
+	case "全くない":
+		R = 1
+	default:
+		R = 0
+	}
+	return R
+}
+
 
