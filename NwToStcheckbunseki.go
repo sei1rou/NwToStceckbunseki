@@ -165,12 +165,12 @@ func main() {
 			sotenHi = 0
 		}
 		
-		hiSoten := make([]string,4)
-		hiSoten[0] = strconv.Itoa(sotenA)
-		hiSoten[1] = strconv.Itoa(sotenB)
-		hiSoten[2] = strconv.Itoa(sotenC)
-		hiSoten[3] = strconv.Itoa(sotenHi)
-		out_record = append(out_record, hiSoten...)
+		hiSoten := make([]int,4)
+		hiSoten[0] = sotenA
+		hiSoten[1] = sotenB
+		hiSoten[2] = sotenC
+		hiSoten[3] = sotenHi
+		out_record = append(out_record, intToString(hiSoten)...)
 
 		//合計点数_高ストレスへ転換
 		gA := A
