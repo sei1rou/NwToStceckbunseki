@@ -5,6 +5,7 @@ import (
 	"flag"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strconv"
 
@@ -34,13 +35,14 @@ func main() {
 	defer infile.Close()
 
 	//　書き込みファイル準備
-	outfile, err := os.Create("./ストレスチェック集団分析用データ.csv")
+	outfile, err := os.Create("./ストレスチェック集団分析用データ.txt")
 	failOnError(err)
 	defer outfile.Close()
 
 	reader := csv.NewReader(transform.NewReader(infile, japanese.ShiftJIS.NewDecoder()))
 	reader.Comma = '\t'
 	writer := csv.NewWriter(transform.NewWriter(outfile, japanese.ShiftJIS.NewEncoder()))
+	writer.Comma = '\t'
 	writer.UseCRLF = true
 
 	log.Print("Start\r\n")
@@ -121,21 +123,21 @@ func main() {
 
 		//素点換算_高ストレスへ転換
 		var SSoten []int
-		SSoten = append(SSoten, 6 - Soten[0])
-		SSoten = append(SSoten, 6 - Soten[1])
-		SSoten = append(SSoten, 6 - Soten[2])
-		SSoten = append(SSoten, 6 - Soten[3])
-		SSoten = append(SSoten, 6 - Soten[4])
+		SSoten = append(SSoten, 6-Soten[0])
+		SSoten = append(SSoten, 6-Soten[1])
+		SSoten = append(SSoten, 6-Soten[2])
+		SSoten = append(SSoten, 6-Soten[3])
+		SSoten = append(SSoten, 6-Soten[4])
 		SSoten = append(SSoten, Soten[5])
 		SSoten = append(SSoten, Soten[6])
 		SSoten = append(SSoten, Soten[7])
 		SSoten = append(SSoten, Soten[8])
 		SSoten = append(SSoten, Soten[9])
-		SSoten = append(SSoten, 6 - Soten[10])
-		SSoten = append(SSoten, 6 - Soten[11])
-		SSoten = append(SSoten, 6 - Soten[12])
-		SSoten = append(SSoten, 6 - Soten[13])
-		SSoten = append(SSoten, 6 - Soten[14])
+		SSoten = append(SSoten, 6-Soten[10])
+		SSoten = append(SSoten, 6-Soten[11])
+		SSoten = append(SSoten, 6-Soten[12])
+		SSoten = append(SSoten, 6-Soten[13])
+		SSoten = append(SSoten, 6-Soten[14])
 		SSoten = append(SSoten, Soten[15])
 		SSoten = append(SSoten, Soten[16])
 		SSoten = append(SSoten, Soten[17])
@@ -159,13 +161,13 @@ func main() {
 		//高ストレス判定（素点換算）
 		if sotenA <= 12 {
 			sotenHi = 1
-		} else if (sotenB + sotenC) <= 26 && sotenA <= 17 {
+		} else if (sotenB+sotenC) <= 26 && sotenA <= 17 {
 			sotenHi = 1
 		} else {
 			sotenHi = 0
 		}
-		
-		hiSoten := make([]int,4)
+
+		hiSoten := make([]int, 4)
 		hiSoten[0] = sotenA
 		hiSoten[1] = sotenB
 		hiSoten[2] = sotenC
@@ -200,14 +202,14 @@ func main() {
 		for n := range gB {
 			gokeiB = gokeiB + gB[n]
 		}
-		for n:= range gC {
+		for n := range gC {
 			gokeiC = gokeiC + gC[n]
 		}
 
 		//高ストレス判定（合計点数）
 		if gokeiB >= 77 {
 			gokeiHi = 1
-		} else if (gokeiA + gokeiC) >= 76 && gokeiB >= 63 {
+		} else if (gokeiA+gokeiC) >= 76 && gokeiB >= 63 {
 			gokeiHi = 1
 		} else {
 			gokeiHi = 0
@@ -236,8 +238,8 @@ func main() {
 		Cb[3] = setCbvalue(record[71])
 		Cb[4] = setCbvalue(record[73])
 		Cb[5] = setCbvalue(record[74])
-		out_record = append(out_record,intToString(Ab)...)
-		out_record = append(out_record,intToString(Cb)...)
+		out_record = append(out_record, intToString(Ab)...)
+		out_record = append(out_record, intToString(Cb)...)
 
 		//集団分析　得点計算
 		Sb := make([]int, 4)
@@ -246,6 +248,40 @@ func main() {
 		Sb[2] = Cb[0] + Cb[2] + Cb[4]
 		Sb[3] = Cb[1] + Cb[3] + Cb[5]
 		out_record = append(out_record, intToString(Sb)...)
+
+		//集団分析　Bad
+		SBad := make([]int, 13)
+		SBad[0] = setBad(SSoten[0])
+		SBad[1] = setBad(SSoten[1])
+		SBad[2] = setBad(SSoten[2])
+		SBad[3] = setBad(SSoten[3])
+		SBad[4] = setBad(SSoten[4])
+		SBad[5] = setBad(SSoten[5])
+		SBad[6] = setBad(SSoten[6])
+		SBad[7] = setBad(SSoten[7])
+		SBad[8] = setBad(SSoten[8])
+		SBad[9] = setBad(SSoten[15])
+		SBad[10] = setBad(SSoten[16])
+		SBad[11] = setBad(SSoten[17])
+		SBad[12] = setBad(SSoten[18])
+		out_record = append(out_record, intToString(SBad)...)
+
+		//集団分析　Good
+		SGood := make([]int, 13)
+		SGood[0] = setGood(SSoten[0])
+		SGood[1] = setGood(SSoten[1])
+		SGood[2] = setGood(SSoten[2])
+		SGood[3] = setGood(SSoten[3])
+		SGood[4] = setGood(SSoten[4])
+		SGood[5] = setGood(SSoten[5])
+		SGood[6] = setGood(SSoten[6])
+		SGood[7] = setGood(SSoten[7])
+		SGood[8] = setGood(SSoten[8])
+		SGood[9] = setGood(SSoten[15])
+		SGood[10] = setGood(SSoten[16])
+		SGood[11] = setGood(SSoten[17])
+		SGood[12] = setGood(SSoten[18])
+		out_record = append(out_record, intToString(SGood)...)
 
 		writer.Write(out_record)
 
@@ -377,7 +413,32 @@ func addRecordHead(S *[]string) {
 	*S = append(*S, "仕事のコントロール")
 	*S = append(*S, "上司の支援")
 	*S = append(*S, "同僚の支援")
-
+	*S = append(*S, "量的負担_Bad")
+	*S = append(*S, "質的負担_Bad")
+	*S = append(*S, "身体負担_Bad")
+	*S = append(*S, "対人関係_Bad")
+	*S = append(*S, "職場環境_Bad")
+	*S = append(*S, "コントロール_Bad")
+	*S = append(*S, "技能活用_Bad")
+	*S = append(*S, "適性度_Bad")
+	*S = append(*S, "働き甲斐_Bad")
+	*S = append(*S, "上司支援_Bad")
+	*S = append(*S, "同僚支援_Bad")
+	*S = append(*S, "家族・友人支援_Bad")
+	*S = append(*S, "満足度_Bad")
+	*S = append(*S, "量的負担_Good")
+	*S = append(*S, "質的負担_Good")
+	*S = append(*S, "身体負担_Good")
+	*S = append(*S, "対人関係_Good")
+	*S = append(*S, "職場環境_Good")
+	*S = append(*S, "コントロール_Good")
+	*S = append(*S, "技能活用_Good")
+	*S = append(*S, "適性度_Good")
+	*S = append(*S, "働き甲斐_Good")
+	*S = append(*S, "上司支援_Good")
+	*S = append(*S, "同僚支援_Good")
+	*S = append(*S, "家族・友人支援_Good")
+	*S = append(*S, "満足度_Good")
 
 }
 
@@ -451,7 +512,10 @@ func setDvalue(S string) string {
 
 func setSoten1(sei string, a1, a2, a3 int) int {
 
-	S := 15 - (a1 + a2 + a3)
+	B := setBlank3(a1, a2, a3)
+
+	// S := 15 - (a1 + a2 + a3)
+	S := 15 - (B[0] + B[1] + B[2])
 	if sei == "男" {
 		switch S {
 		case 3, 4, 5:
@@ -490,7 +554,10 @@ func setSoten1(sei string, a1, a2, a3 int) int {
 
 func setSoten2(sei string, a4, a5, a6 int) int {
 
-	S := 15 - (a4 + a5 + a6)
+	B := setBlank3(a4, a5, a6)
+
+	//S := 15 - (a4 + a5 + a6)
+	S := 15 - (B[0] + B[1] + B[2])
 	if sei == "男" {
 		switch S {
 		case 3, 4, 5:
@@ -564,7 +631,10 @@ func setSoten3(sei string, a7 int) int {
 
 func setSoten4(sei string, a12, a13, a14 int) int {
 
-	S := 10 - (a12 + a13) + a14
+	B := setBlank33(a12, a13, a14)
+
+	//S := 10 - (a12 + a13) + a14
+	S := 10 - (B[0] + B[1]) + B[2]
 	if sei == "男" {
 		switch S {
 		case 3:
@@ -598,6 +668,7 @@ func setSoten4(sei string, a12, a13, a14 int) int {
 	} else {
 		S = 0
 	}
+
 	return S
 }
 
@@ -638,7 +709,10 @@ func setSoten5(sei string, a15 int) int {
 
 func setSoten6(sei string, a8, a9, a10 int) int {
 
-	S := 15 - (a8 + a9 + a10)
+	B := setBlank3(a8, a9, a10)
+
+	//S := 15 - (a8 + a9 + a10)
+	S := 15 - (B[0] + B[1] + B[2])
 	if sei == "男" {
 		switch S {
 		case 3, 4:
@@ -782,7 +856,10 @@ func setSoten9(sei string, a17 int) int {
 
 func setSoten10(sei string, b1, b2, b3 int) int {
 
-	S := b1 + b2 + b3
+	B := setBlank3(b1, b2, b3)
+
+	//S := b1 + b2 + b3
+	S := B[0] + B[1] + B[2]
 	if sei == "男" {
 		switch S {
 		case 3:
@@ -821,7 +898,10 @@ func setSoten10(sei string, b1, b2, b3 int) int {
 
 func setSoten11(sei string, b4, b5, b6 int) int {
 
-	S := b4 + b5 + b6
+	B := setBlank3(b4, b5, b6)
+
+	//S := b4 + b5 + b6
+	S := B[0] + B[1] + B[2]
 	if sei == "男" {
 		switch S {
 		case 3:
@@ -860,7 +940,10 @@ func setSoten11(sei string, b4, b5, b6 int) int {
 
 func setSoten12(sei string, b7, b8, b9 int) int {
 
-	S := b7 + b8 + b9
+	B := setBlank3(b7, b8, b9)
+
+	//S := b7 + b8 + b9
+	S := B[0] + B[1] + B[2]
 	if sei == "男" {
 		switch S {
 		case 3:
@@ -899,7 +982,10 @@ func setSoten12(sei string, b7, b8, b9 int) int {
 
 func setSoten13(sei string, b10, b11, b12 int) int {
 
-	S := b10 + b11 + b12
+	B := setBlank3(b10, b11, b12)
+
+	//S := b10 + b11 + b12
+	S := B[0] + B[1] + B[2]
 	if sei == "男" {
 		switch S {
 		case 3:
@@ -938,7 +1024,10 @@ func setSoten13(sei string, b10, b11, b12 int) int {
 
 func setSoten14(sei string, b13, b14, b15, b16, b17, b18 int) int {
 
-	S := b13 + b14 + b15 + b16 + b17 + b18
+	B := setBlank6(b13, b14, b15, b16, b17, b18)
+
+	//S := b13 + b14 + b15 + b16 + b17 + b18
+	S := B[0] + B[1] + B[2] + B[3] + B[4] + B[5]
 	if sei == "男" {
 		switch S {
 		case 6:
@@ -977,7 +1066,10 @@ func setSoten14(sei string, b13, b14, b15, b16, b17, b18 int) int {
 
 func setSoten15(sei string, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29 int) int {
 
-	S := b19 + b20 + b21 + b22 + b23 + b24 + b25 + b26 + b27 + b28 + b29
+	B := setBlank11(b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29)
+
+	//S := b19 + b20 + b21 + b22 + b23 + b24 + b25 + b26 + b27 + b28 + b29
+	S := B[0] + B[1] + B[2] + B[3] + B[4] + B[5] + B[6] + B[7] + B[8] + B[9] + B[10]
 	if sei == "男" {
 		switch {
 		case S == 11:
@@ -1016,7 +1108,10 @@ func setSoten15(sei string, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b2
 
 func setSoten16(sei string, c1, c4, c7 int) int {
 
-	S := 15 - (c1 + c4 + c7)
+	B := setBlank3(c1, c4, c7)
+
+	//S := 15 - (c1 + c4 + c7)
+	S := 15 - (B[0] + B[1] + B[2])
 	if sei == "男" {
 		switch S {
 		case 3, 4:
@@ -1055,7 +1150,10 @@ func setSoten16(sei string, c1, c4, c7 int) int {
 
 func setSoten17(sei string, c2, c5, c8 int) int {
 
-	S := 15 - (c2 + c5 + c8)
+	B := setBlank3(c2, c5, c8)
+
+	//S := 15 - (c2 + c5 + c8)
+	S := 15 - (B[0] + B[1] + B[2])
 	if sei == "男" {
 		switch S {
 		case 3, 4, 5:
@@ -1094,7 +1192,10 @@ func setSoten17(sei string, c2, c5, c8 int) int {
 
 func setSoten18(sei string, c3, c6, c9 int) int {
 
-	S := 15 - (c3 + c6 + c9)
+	B := setBlank3(c3, c6, c9)
+
+	//S := 15 - (c3 + c6 + c9)
+	S := 15 - (B[0] + B[1] + B[2])
 	if sei == "男" {
 		switch S {
 		case 3, 4, 5, 6:
@@ -1172,7 +1273,7 @@ func setSoten19(sei string, d1, d2 int) int {
 
 func intToString(i []int) []string {
 	s := make([]string, len(i))
-	for n:= range i {
+	for n := range i {
 		s[n] = strconv.Itoa(i[n])
 	}
 	return s
@@ -1213,4 +1314,171 @@ func setCbvalue(S string) int {
 	return R
 }
 
+func setBad(S int) int {
+	var R int
 
+	if (S == 1) || (S == 2) {
+		R = 1
+	} else {
+		R = 0
+	}
+	return R
+}
+
+func setGood(S int) int {
+	var R int
+
+	if (S == 4) || (S == 5) {
+		R = 1
+	} else {
+		R = 0
+	}
+	return R
+}
+
+func round(f float64) float64 {
+	return math.Floor(f + .5)
+}
+
+func setBlank3(v1, v2, v3 int) []int {
+
+	a := make([]int, 3)
+	a[0] = v1
+	a[1] = v2
+	a[2] = v3
+
+	cnt := 0
+	total := 0
+	for _, v := range a {
+		if v != 0 {
+			cnt++
+		}
+		total = total + v
+	}
+
+	//回答は2/3以上か
+	blankV := 0
+	if (cnt >= 2) && (cnt != 3) {
+		blankV = int(round(float64(total) / float64(cnt)))
+		for i := range a {
+			if a[i] == 0 {
+				a[i] = blankV
+			}
+		}
+
+	}
+
+	return a
+
+}
+
+func setBlank33(v1, v2, v3 int) []int {
+
+	a := make([]int, 3)
+	a[0] = v1
+	a[1] = v2
+	a[2] = v3
+
+	cnt := 0
+	total := 0
+	for _, v := range a {
+		if v != 0 {
+			cnt++
+		}
+		total = total + v
+	}
+
+	//回答は2/3以上か
+	blankV := 0
+	if (cnt >= 2) && (cnt != 3) {
+		blankV = int(round(float64(total) / float64(cnt)))
+		for i := range a {
+			if a[i] == 0 {
+				if i == 2 {
+					a[i] = 5 - blankV
+				} else {
+					a[i] = blankV
+				}
+			}
+		}
+
+	}
+
+	return a
+
+}
+
+func setBlank6(v1, v2, v3, v4, v5, v6 int) []int {
+
+	a := make([]int, 6)
+	a[0] = v1
+	a[1] = v2
+	a[2] = v3
+	a[3] = v4
+	a[4] = v5
+	a[5] = v6
+
+	cnt := 0
+	total := 0
+	for _, v := range a {
+		if v != 0 {
+			cnt++
+		}
+		total = total + v
+	}
+
+	//回答は2/3以上か
+	blankV := 0
+	if (cnt >= 4) && (cnt != 6) {
+		blankV = int(round(float64(total) / float64(cnt)))
+		for i := range a {
+			if a[i] == 0 {
+				a[i] = blankV
+			}
+		}
+
+	}
+
+	return a
+
+}
+
+func setBlank11(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 int) []int {
+
+	a := make([]int, 11)
+	a[0] = v1
+	a[1] = v2
+	a[2] = v3
+	a[3] = v4
+	a[4] = v5
+	a[5] = v6
+	a[6] = v7
+	a[7] = v8
+	a[8] = v9
+	a[9] = v10
+	a[10] = v11
+
+	cnt := 0
+	total := 0
+	for _, v := range a {
+		if v != 0 {
+			cnt++
+		}
+		total = total + v
+	}
+
+	//回答は2/3以上か
+	blankV := 0
+	if (cnt >= 7) && (cnt != 11) {
+		blankV = int(round(float64(total) / float64(cnt)))
+		for i := range a {
+			if a[i] == 0 {
+				a[i] = blankV
+			}
+		}
+
+	}
+
+	return a
+
+}
