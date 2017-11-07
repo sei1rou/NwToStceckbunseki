@@ -250,7 +250,7 @@ func main() {
 		out_record = append(out_record, intToString(Sb)...)
 
 		//集団分析　Bad
-		SBad := make([]int, 13)
+		SBad := make([]int, 19)
 		SBad[0] = setBad(SSoten[0])
 		SBad[1] = setBad(SSoten[1])
 		SBad[2] = setBad(SSoten[2])
@@ -264,6 +264,12 @@ func main() {
 		SBad[10] = setBad(SSoten[16])
 		SBad[11] = setBad(SSoten[17])
 		SBad[12] = setBad(SSoten[18])
+		SBad[13] = setBad(SSoten[9])
+		SBad[14] = setBad(SSoten[10])
+		SBad[15] = setBad(SSoten[11])
+		SBad[16] = setBad(SSoten[12])
+		SBad[17] = setBad(SSoten[13])
+		SBad[18] = setBad(SSoten[14])
 		out_record = append(out_record, intToString(SBad)...)
 
 		//集団分析　Good
@@ -426,6 +432,12 @@ func addRecordHead(S *[]string) {
 	*S = append(*S, "同僚支援_Bad")
 	*S = append(*S, "家族・友人支援_Bad")
 	*S = append(*S, "満足度_Bad")
+	*S = append(*S, "活気_Bad")
+	*S = append(*S, "いらいら感_Bad")
+	*S = append(*S, "疲労感_Bad")
+	*S = append(*S, "不安感_Bad")
+	*S = append(*S, "抑うつ感_Bad")
+	*S = append(*S, "身体愁訴_Bad")
 	*S = append(*S, "量的負担_Good")
 	*S = append(*S, "質的負担_Good")
 	*S = append(*S, "身体負担_Good")
