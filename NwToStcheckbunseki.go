@@ -73,23 +73,23 @@ func main() {
 		//errPersonalInfo := record[0] + "," + record[3]
 
 		//項目文字列を数字に変換
-		for i := 21; i <= 77; i++ {
-			if i <= 37 {
+		for i := 23; i <= 79; i++ {
+			if i <= 39 {
 				setA := setAvalue(record[i])
 				intA, _ := strconv.Atoi(setA)
 				out_record = append(out_record, setA)
 				A = append(A, intA)
-			} else if i <= 66 {
+			} else if i <= 68 {
 				setB := setBvalue(record[i])
 				intB, _ := strconv.Atoi(setB)
 				out_record = append(out_record, setB)
 				B = append(B, intB)
-			} else if i <= 75 {
+			} else if i <= 77 {
 				setC := setCvalue(record[i])
 				intC, _ := strconv.Atoi(setC)
 				out_record = append(out_record, setC)
 				C = append(C, intC)
-			} else if i <= 77 {
+			} else if i <= 79 {
 				setD := setDvalue(record[i])
 				intD, _ := strconv.Atoi(setD)
 				out_record = append(out_record, setD)
@@ -226,18 +226,18 @@ func main() {
 		Ab := make([]int, 6)
 		Cb := make([]int, 6)
 
-		Ab[0] = setAbvalue(record[21])
-		Ab[1] = setAbvalue(record[22])
-		Ab[2] = setAbvalue(record[23])
-		Ab[3] = setAbvalue(record[28])
-		Ab[4] = setAbvalue(record[29])
-		Ab[5] = setAbvalue(record[30])
-		Cb[0] = setCbvalue(record[67])
-		Cb[1] = setCbvalue(record[68])
-		Cb[2] = setCbvalue(record[70])
-		Cb[3] = setCbvalue(record[71])
-		Cb[4] = setCbvalue(record[73])
-		Cb[5] = setCbvalue(record[74])
+		Ab[0] = setAbvalue(record[23])
+		Ab[1] = setAbvalue(record[24])
+		Ab[2] = setAbvalue(record[25])
+		Ab[3] = setAbvalue(record[30])
+		Ab[4] = setAbvalue(record[31])
+		Ab[5] = setAbvalue(record[32])
+		Cb[0] = setCbvalue(record[69])
+		Cb[1] = setCbvalue(record[70])
+		Cb[2] = setCbvalue(record[72])
+		Cb[3] = setCbvalue(record[73])
+		Cb[4] = setCbvalue(record[75])
+		Cb[5] = setCbvalue(record[76])
 		out_record = append(out_record, intToString(Ab)...)
 		out_record = append(out_record, intToString(Cb)...)
 
@@ -288,6 +288,15 @@ func main() {
 		SGood[11] = setGood(SSoten[17])
 		SGood[12] = setGood(SSoten[18])
 		out_record = append(out_record, intToString(SGood)...)
+
+		//集団分析対象外
+		bunsekiNo := "0"
+		for _, Sotenv := range Soten {
+			if Sotenv == 0 {
+				bunsekiNo = "1"
+			}
+		}
+		out_record = append(out_record, bunsekiNo)
 
 		writer.Write(out_record)
 
@@ -451,6 +460,7 @@ func addRecordHead(S *[]string) {
 	*S = append(*S, "同僚支援_Good")
 	*S = append(*S, "家族・友人支援_Good")
 	*S = append(*S, "満足度_Good")
+	*S = append(*S, "集団分析対象外")
 
 }
 
@@ -541,7 +551,7 @@ func setSoten1(sei string, a1, a2, a3 int) int {
 		case 12:
 			S = 5
 		default:
-			S = 99
+			S = 0
 		}
 	} else if sei == "女" {
 		switch S {
@@ -556,10 +566,10 @@ func setSoten1(sei string, a1, a2, a3 int) int {
 		case 12:
 			S = 5
 		default:
-			S = 999
+			S = 0
 		}
 	} else {
-		S = 9999
+		S = 0
 	}
 	return S
 }
@@ -1246,7 +1256,10 @@ func setSoten18(sei string, c3, c6, c9 int) int {
 
 func setSoten19(sei string, d1, d2 int) int {
 
-	S := 10 - (d1 + d2)
+	D := setBlank2(d1, d2)
+
+	//S := 10 - (d1 + d2)
+	S := 10 - (D[0] + D[1])
 	if sei == "男" {
 		switch S {
 		case 2, 3:
@@ -1352,6 +1365,28 @@ func round(f float64) float64 {
 	return math.Floor(f + .5)
 }
 
+func setBlank2(v1, v2 int) []int {
+
+	a := make([]int, 2)
+	a[0] = v1
+	a[1] = v2
+
+	//未回答が１個あれば、0埋め
+	if v1 == 0 {
+		v2 = 0
+	} else {
+		if v2 == 0 {
+			v1 = 0
+		}
+	}
+
+	a[0] = v1
+	a[1] = v2
+
+	return a
+
+}
+
 func setBlank3(v1, v2, v3 int) []int {
 
 	a := make([]int, 3)
@@ -1377,7 +1412,13 @@ func setBlank3(v1, v2, v3 int) []int {
 				a[i] = blankV
 			}
 		}
-
+	} else {
+		//回答は1/3以下なら0埋め
+		if cnt != 3 {
+			for i := range a {
+				a[i] = 0
+			}
+		}
 	}
 
 	return a
@@ -1413,6 +1454,13 @@ func setBlank33(v1, v2, v3 int) []int {
 				}
 			}
 		}
+	} else {
+		//回答は1/3以下なら0埋め
+		if cnt != 3 {
+			for i := range a {
+				a[i] = 0
+			}
+		}
 
 	}
 
@@ -1446,6 +1494,13 @@ func setBlank6(v1, v2, v3, v4, v5, v6 int) []int {
 		for i := range a {
 			if a[i] == 0 {
 				a[i] = blankV
+			}
+		}
+	} else {
+		//回答は1/3以下なら0埋め
+		if cnt != 6 {
+			for i := range a {
+				a[i] = 0
 			}
 		}
 
@@ -1486,6 +1541,13 @@ func setBlank11(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 int) []int {
 		for i := range a {
 			if a[i] == 0 {
 				a[i] = blankV
+			}
+		}
+	} else {
+		//回答は1/3以下なら0埋め
+		if cnt != 11 {
+			for i := range a {
+				a[i] = 0
 			}
 		}
 
